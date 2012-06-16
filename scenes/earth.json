@@ -1,0 +1,12 @@
+{
+  entities: [
+    {
+      components: [
+        {
+          "type": "SphereVisual",
+          "radius": 10,
+        },
+      ],
+    },
+  ],
+}

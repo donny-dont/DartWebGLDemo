@@ -1,0 +1,33 @@
+{
+    "uniforms": [
+        "uSampler"
+    ],
+    "techniques": [
+        {
+            "name": "SimpleEffect",
+            "passes": [
+                {
+                    "vertex": [
+                        "attribute vec3 position;",
+                        "attribute vec2 texCoord0;",
+                        "",
+                        "varying vec2 vTexCoord0;",
+                        "void main(void) {",
+                        "    vTexCoord0 = texCoord0;",
+                        "    gl_Position = vec4(position, 1);",
+                        "}"
+                    ],
+                    "pixel": [                    
+                        "precision mediump float;",
+                        "varying vec2 vTexCoord0;",
+                        "uniform sampler2D uSampler;",
+                        "",
+                        "void main(void) {",
+                        "    gl_FragColor = texture2D(uSampler, vec2(vTexCoord0.s, vTexCoord0.t));",
+                        "}"
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+  entities: [
+    {
+      components: [
+        {
+          "type": "CubeVisual",
+          "xExtent": 10,
+          "yExtent": 20,
+          "zExtent": 10,
+        },
+      ],
+    },
+  ],
+}

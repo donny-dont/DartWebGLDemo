@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Dart+WebGL Example</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link href='http://fonts.googleapis.com/css?family=Nobile' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Oswald:700' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="header">
+        Dart+WebGL Example
+      </div>
+      <div id="area">
+        <canvas id="game" style="background:#000">
+        </canvas>
+        <div id="editor">
+          <div id="editor-header">
+            <div id="run-button"></div>
+            <div id="fullscreen-button"></div>
+            <select id="example-select">
+              <option value="scenes/cube.json">Cube</option>
+              <option value="scenes/earth.json">Earth</option>
+            </select>
+          </div>
+          <textarea id="editor-text"></textarea>
+        </div>
+      </div>
+      <div style="clear:both;"></div>
+      <hr></hr>
+      <div id="footer">
+        <div id="copyright">© 2012 Don Olmstead. All rights reserved.</div>
+        <div id="dart-logo"></div>
+      </div>
+    </div>
+    <script type="application/dart" src="Demo.dart"></script>
+    <script src="http://dart.googlecode.com/svn/branches/bleeding_edge/dart/client/dart.js"></script>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+{
+    "uniforms": [
+        "uMVMatrix",
+        "uPMatrix",
+        "IDontExist",
+        "uSampler"
+    ],
+    "techniques": [
+        {
+            "name": "SimpleTexture",
+            "passes": [
+                {
+                    "vertex": [
+                        "attribute vec3 position;",
+                        "attribute vec2 texCoord0;",
+                        "",
+                        "uniform mat4 uMVMatrix;",
+                        "uniform mat4 uPMatrix;",
+                        "",
+                        "varying vec2 vTextureCoord;",
+                        "",
+                        "void main(void) {",
+                        "    gl_Position = vec4(position, 1.0);",
+                        "    vTextureCoord = texCoord0;",
+                        "}\n"
+                    ],
+                    "pixel": [                    
+                        "precision mediump float;",
+                        "",
+                        "varying vec2 vTextureCoord;",
+                        "",
+                        "uniform sampler2D uSampler;",
+                        "",
+                        "void main(void) {",
+                        "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);",
+                        "}"
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
