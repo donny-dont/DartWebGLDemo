@@ -1,5 +1,5 @@
 /**
- * \file arrays.dart
+ * \file Demo.dart
  *
  * \section COPYRIGHT
  *
@@ -40,10 +40,12 @@
 #source('lib/graphics/texture.dart');
 #source('lib/graphics/vertex_buffer.dart');
 #source('lib/graphics/vertex_definitions.dart');
+#source('lib/scene/entity.dart');
+#source('lib/scene/meshes.dart');
 
 ContentManager manager;
 GameWindow gameWindow;
-GraphicsDevice device;
+GraphicsDevice __device;
 EffectPass __effectPass;
 Effect __effect;
 Texture2D __texture;
@@ -51,7 +53,62 @@ Texture2D __texture;
 String techniqueName = 'SimpleEffect';
 String effectFilename = 'effects/test_effect.json';
 
-PositionTextureBuffer __vertexBuffer;
+PositionNormalTextureBuffer __vertexBuffer;
+IndexBuffer __indexBuffer;
+
+class Component
+{
+  GameObject _entity;
+
+  Component()
+    : _entity = null;
+
+  void _setEntity(GameObject value)
+  {
+    _entity = value;
+  }
+}
+
+class Transform extends Component
+{
+  Transform _parent;
+  mat4x4 _local;
+  mat4x4 _world;
+
+  Transform()
+    : _parent = null
+    , _local = new mat4x4()
+    , _world = new mat4x4();
+
+  static void updateTree(Transform root)
+  {
+
+  }
+}
+
+class Camera extends Component
+{
+
+}
+
+class Light extends Component
+{
+
+}
+
+class Visual extends Component
+{
+  VertexBuffer _vertexBuffer;
+  IndexBuffer _indexBuffer;
+
+  Visual()
+    : _vertexBuffer = null
+    , _indexBuffer = null;
+
+  VertexBuffer get vertexBuffer() => _vertexBuffer;
+  IndexBuffer get indexBuffer() => _indexBuffer;
+}
+
 
 class GameWindow
 {
@@ -181,32 +238,24 @@ void main() {
   setupEditor();
 
   gameWindow = new GameWindow('#game', 800, 600);
-  device = gameWindow.graphicsDevice;
+  __device = gameWindow.graphicsDevice;
 
-  manager = new ContentManager(device);
+  manager = new ContentManager(__device);
   __texture = manager.loadTexture('textures/test.jpg');
 
   __effect = manager.loadEffect(effectFilename);
   PositionTextureBuffer.createDeclaration();
+  PositionNormalTextureBuffer.createDeclaration();
 
-  __vertexBuffer = new PositionTextureBuffer(device, 6);
-
-
-  Vector3fArray positions = __vertexBuffer.positions;
-  Vector2fArray texCoords = __vertexBuffer.textureCoords;
-
-  positions[0] = new vec3(-0.5,  0.5, 0.0); texCoords[0] = new vec2(0.0, 0.0);
-  positions[1] = new vec3( 0.5,  0.5, 0.0); texCoords[1] = new vec2(1.0, 0.0);
-  positions[2] = new vec3( 0.5, -0.5, 0.0); texCoords[2] = new vec2(1.0, 1.0);
-  positions[3] = new vec3( 0.5, -0.5, 0.0); texCoords[3] = new vec2(1.0, 1.0);
-  positions[4] = new vec3(-0.5, -0.5, 0.0); texCoords[4] = new vec2(0.0, 1.0);
-  positions[5] = new vec3(-0.5,  0.5, 0.0); texCoords[5] = new vec2(0.0, 0.0);
+  PlaneVisual plane = new PlaneVisual(__device, 0.5, 0.5, 64, 64);
+  __vertexBuffer = plane._vertexBuffer;
+  __indexBuffer = plane._indexBuffer;
 
   update(0);
 }
 
 bool update(int time) {
-  device.clear();
+  __device.clear();
   manager.update();
 
   if (__effect.techniques.containsKey(techniqueName))
@@ -217,11 +266,12 @@ bool update(int time) {
     EffectPass pass = __effect.techniques[techniqueName].passes[0];
     pass.apply();
 
-    device.setTexture(__texture, 0);
-    device.setVertexBuffer(__vertexBuffer);
+    __device.setTexture(__texture, 0);
+    __device.setVertexBuffer(__vertexBuffer);
+    __device.setIndexBuffer(__indexBuffer);
 
     // draw it!
-    device.drawPrimitives(PrimitiveType.TriangleList, 0, __vertexBuffer.vertexCount);
+    __device.drawIndexedPrimitives(PrimitiveType.TriangleList, 0, __indexBuffer.indexCount);
   }
 
   window.requestAnimationFrame(update);

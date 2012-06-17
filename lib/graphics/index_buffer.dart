@@ -28,16 +28,32 @@
 class IndexBuffer extends GraphicsResource
 {
   WebGLBuffer _buffer;
+  bool _dirty;
+  int _indexCount;
   Uint16Array _array;
 
-  IndexBuffer(GraphicsDevice device)
-    : super(device);
-
-  IndexBuffer.fromList(GraphicsDevice device, List<int> indices)
+  IndexBuffer(GraphicsDevice device, int indexCount)
     : super(device)
-    , _array = new Uint16Array.fromList(indices)
+    , _dirty = true
+    , _indexCount = indexCount
+    , _array = new Uint16Array(indexCount)
   {
     _device._bindIndexBuffer(this);
     _device._setDataIndexBuffer(this);
   }
+
+  int operator[] (int index)
+  {
+    return _array[index];
+  }
+
+  int operator[]= (int index, int value)
+  {
+    _array[index] = value;
+
+    _dirty = true;
+  }
+
+  int get indexCount() => _indexCount;
+  bool get isDirty() => _dirty;
 }

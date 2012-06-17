@@ -1,2 +1,4 @@
 Demo.dart
+lib/application/game_state.dart
+lib/application/game.dart
 third_party/VectorMath/VectorMath.dart

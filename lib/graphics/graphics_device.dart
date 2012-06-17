@@ -115,6 +115,11 @@ class GraphicsDevice
     _gl.drawArrays(type.value, startVertex, primitiveCount);
   }
 
+  void drawIndexedPrimitives(PrimitiveType type, int startVertex, int indexCount)
+  {
+    _gl.drawElements(type.value, indexCount, WebGLRenderingContext.UNSIGNED_SHORT, startVertex);
+  }
+
   //---------------------------------------------------------------------
   // EffectParameter methods
   //---------------------------------------------------------------------
@@ -262,7 +267,14 @@ class GraphicsDevice
 
   void setIndexBuffer(IndexBuffer buffer)
   {
-    _gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, buffer._buffer);
+    if (buffer.isDirty)
+    {
+      _setDataIndexBuffer(buffer);
+    }
+    else
+    {
+      _gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, buffer._buffer);
+    }
   }
 
   void _bindIndexBuffer(IndexBuffer buffer)
@@ -277,7 +289,8 @@ class GraphicsDevice
 
   void _setDataIndexBuffer(IndexBuffer buffer)
   {
-
+    _gl.bindBuffer(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, buffer._buffer);
+    _gl.bufferData(WebGLRenderingContext.ELEMENT_ARRAY_BUFFER, buffer._array, WebGLRenderingContext.STATIC_DRAW);
   }
 
   //---------------------------------------------------------------------

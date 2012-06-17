@@ -34,7 +34,7 @@ class PositionTextureBuffer extends VertexBuffer
   Vector2fArray _textureCoords;
 
   PositionTextureBuffer(GraphicsDevice device, int vertexCount)
-    : super(device, new Float32Array(vertexCount * _vertexDeclaration.vertexStride))
+    : super(device, new Float32Array(vertexCount * (_vertexDeclaration.vertexStride >> 2)))
     , _vertexCount = vertexCount
   {
     int stride = _vertexDeclaration.vertexStride;
@@ -58,6 +58,47 @@ class PositionTextureBuffer extends VertexBuffer
     _vertexDeclaration = new VertexDeclaration([
       new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
       new VertexElement(12, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
+    ]);
+  }
+}
+
+class PositionNormalTextureBuffer extends VertexBuffer
+{
+  static VertexDeclaration _vertexDeclaration;
+
+  int _vertexCount;
+  Vector3fArray _positions;
+  Vector3fArray _normals;
+  Vector2fArray _textureCoords;
+
+  PositionNormalTextureBuffer(GraphicsDevice device, int vertexCount)
+    : super(device, new Float32Array(vertexCount * (_vertexDeclaration.vertexStride >> 2)))
+    , _vertexCount = vertexCount
+  {
+    int stride = _vertexDeclaration.vertexStride;
+    _positions = new Vector3fArray.fromArray(_vertices, 0, stride);
+    _normals = new Vector3fArray.fromArray(_vertices, 12, stride);
+    _textureCoords = new Vector2fArray.fromArray(_vertices, 24, stride);
+  }
+
+  VertexDeclaration get vertexDeclaration() => _vertexDeclaration;
+
+  bool get isDirty()
+  {
+    return _positions.isDirty || _normals.isDirty || _textureCoords.isDirty;
+  }
+
+  int get vertexCount() => _vertexCount;
+  Vector3fArray get positions() => _positions;
+  Vector3fArray get normals() => _normals;
+  Vector2fArray get textureCoords() => _textureCoords;
+
+  static void createDeclaration()
+  {
+    _vertexDeclaration = new VertexDeclaration([
+      new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+      new VertexElement(12, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+      new VertexElement(24, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
     ]);
   }
 }
