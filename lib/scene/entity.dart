@@ -25,7 +25,7 @@
  *   distribution.
  */
 
-class GameObject
+class GameEntity
 {
   List<Component> _components;
   Transform _transform;
@@ -33,12 +33,17 @@ class GameObject
   Camera _camera;
   Light _light;
 
-  GameObject()
+  GameEntity()
     : _components = new List<Component>()
     , _transform = null
     , _visual = null
     , _camera = null
     , _light = null;
+
+  Transform get transform() => _transform;
+  Visual get visual() => _visual;
+  Camera get camera() => _camera;
+  Light get light() => _light;
 
   void addComponent(Component component)
   {

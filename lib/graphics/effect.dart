@@ -52,6 +52,16 @@ class EffectParameter
     _effect._setInt(this, value);
   }
 
+  void setFloat(double value)
+  {
+    _effect._setFloat(this, value);
+  }
+
+  void setMatrix3x3(mat3x3 value)
+  {
+    _effect._setMatrix3x3(this, value);
+  }
+
   void setMatrix4x4(mat4x4 value)
   {
     _effect._setMatrix4x4(this, value);
@@ -81,6 +91,34 @@ class Effect extends GraphicsResource
       for (EffectPass pass in passes)
       {
         pass._setInt(parameter.name, value);
+      }
+    }
+  }
+
+  void _setFloat(EffectParameter parameter, double value)
+  {
+    Collection techniques = _techniques.getValues();
+
+    for (EffectTechnique technique in techniques)
+    {
+      List<EffectPass> passes = technique.passes;
+      for (EffectPass pass in passes)
+      {
+        pass._setFloat(parameter.name, value);
+      }
+    }
+  }
+
+  void _setMatrix3x3(EffectParameter parameter, mat3x3 value)
+  {
+    Collection techniques = _techniques.getValues();
+
+    for (EffectTechnique technique in techniques)
+    {
+      List<EffectPass> passes = technique.passes;
+      for (EffectPass pass in passes)
+      {
+        pass._setMatrix3x3(parameter.name, value);
       }
     }
   }
@@ -189,6 +227,26 @@ class EffectPass extends GraphicsResource
       apply();
 
       _device._bindUniform1i(_locations[name], value);
+    }
+  }
+
+  void _setFloat(String name, double value)
+  {
+    if (_locations.containsKey(name))
+    {
+      apply();
+
+      _device._bindUniform1f(_locations[name], value);
+    }
+  }
+
+  void _setMatrix3x3(String name, mat3x3 value)
+  {
+    if (_locations.containsKey(name))
+    {
+      apply();
+
+      _device._bindUniformMatrix3x3(_locations[name], value);
     }
   }
 

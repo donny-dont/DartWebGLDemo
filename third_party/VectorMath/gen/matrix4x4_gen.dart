@@ -1,9 +1,9 @@
 /*
 
   VectorMath.dart
-  
+
   Copyright (C) 2012 John McCutchan <john@johnmccutchan.com>
-  
+
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
   arising from the use of this software.
@@ -382,6 +382,12 @@ class mat4x4 {
     col2[row] = arg.z;
     col3[row] = arg.w;
   }
+  void setRow3(int row, vec3 arg) {
+    assert(row >= 0 && row < 4);
+    col0[row] = arg.x;
+    col1[row] = arg.y;
+    col2[row] = arg.z;
+  }
   /// Gets the [row] of the matrix
   vec4 getRow(int row) {
     assert(row >= 0 && row < 4);
@@ -430,6 +436,13 @@ class mat4x4 {
       r.y =  (this.col0.y * arg.x) + (this.col1.y * arg.y) + (this.col2.y * arg.z) + (this.col3.y * arg.w);
       r.z =  (this.col0.z * arg.x) + (this.col1.z * arg.y) + (this.col2.z * arg.z) + (this.col3.z * arg.w);
       r.w =  (this.col0.w * arg.x) + (this.col1.w * arg.y) + (this.col2.w * arg.z) + (this.col3.w * arg.w);
+      return r;
+    }
+    if (arg is vec3) {
+      vec3 r = new vec3();
+      r.x =  (this.col0.x * arg.x) + (this.col1.x * arg.y) + (this.col2.x * arg.z);
+      r.y =  (this.col0.y * arg.x) + (this.col1.y * arg.y) + (this.col2.y * arg.z);
+      r.z =  (this.col0.z * arg.x) + (this.col1.z * arg.y) + (this.col2.z * arg.z);
       return r;
     }
     if (4 == arg.rows) {

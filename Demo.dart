@@ -30,6 +30,7 @@
 #import('dart:core');
 #import('dart:json');
 #import('third_party/VectorMath/VectorMath.dart');
+#source('lib/application/game.dart');
 #source('lib/content/content_manager.dart');
 #source('lib/content/_effect_manager.dart');
 #source('lib/content/_texture_manager.dart');
@@ -40,6 +41,7 @@
 #source('lib/graphics/texture.dart');
 #source('lib/graphics/vertex_buffer.dart');
 #source('lib/graphics/vertex_definitions.dart');
+#source('lib/scene/components.dart');
 #source('lib/scene/entity.dart');
 #source('lib/scene/meshes.dart');
 
@@ -49,25 +51,13 @@ GraphicsDevice __device;
 EffectPass __effectPass;
 Effect __effect;
 Texture2D __texture;
+Camera __camera;
 
-String techniqueName = 'SimpleEffect';
-String effectFilename = 'effects/test_effect.json';
+String techniqueName = 'SimpleTexture';
+String effectFilename = 'effects/texture_effect.json';
 
 PositionNormalTextureBuffer __vertexBuffer;
 IndexBuffer __indexBuffer;
-
-class Component
-{
-  GameObject _entity;
-
-  Component()
-    : _entity = null;
-
-  void _setEntity(GameObject value)
-  {
-    _entity = value;
-  }
-}
 
 class Transform extends Component
 {
@@ -80,15 +70,54 @@ class Transform extends Component
     , _local = new mat4x4()
     , _world = new mat4x4();
 
+  mat4x4 get local() => _local;
+  mat4x4 get world() => _world;
+
   static void updateTree(Transform root)
   {
 
   }
 }
 
-class Camera extends Component
+class RotationController extends Component
 {
 
+}
+
+class Camera extends Component
+{
+  mat4x4 _projectionMatrix;
+  mat4x4 _viewMatrix;
+
+  Camera()
+    : _projectionMatrix = new mat4x4()
+    , _viewMatrix = new mat4x4();
+
+  mat4x4 get projectionMatrix() => _projectionMatrix;
+  mat4x4 get viewMatrix() => _viewMatrix;
+
+  void setPerspective(double fov, double aspectRatio, double near, double far)
+  {
+    _projectionMatrix = makePerspective(fov, aspectRatio, near, far);
+  }
+
+  void setOrthographic(double left, double right, double bottom, double top, double near, double far)
+  {
+    _projectionMatrix = makeOrthographic(left, right, bottom, top, near, far);
+  }
+
+  void update()
+  {
+    if (_entity != null)
+    {
+      Transform transform = _entity.transform;
+      assert(transform != null);
+
+      mat4x4 world = transform.world;
+
+
+    }
+  }
 }
 
 class Light extends Component
@@ -107,58 +136,6 @@ class Visual extends Component
 
   VertexBuffer get vertexBuffer() => _vertexBuffer;
   IndexBuffer get indexBuffer() => _indexBuffer;
-}
-
-
-class GameWindow
-{
-  GraphicsDevice _graphicsDevice;
-  CanvasElement _canvas;
-  int _windowedWidth;
-  int _windowedHeight;
-
-  GameWindow(String canvasId, int width, int height)
-  {
-    _canvas = document.query(canvasId);
-    _canvas.width = width;
-    _canvas.height = height;
-    _windowedWidth = _canvas.width;
-    _windowedHeight = _canvas.height;
-
-    // Create the graphics device
-    _graphicsDevice = new GraphicsDevice(_canvas.getContext('experimental-webgl'));
-
-    // Add callback for when fullscreen is toggled
-    _canvas.on.fullscreenChange.add((e) {
-      if (document.webkitIsFullScreen)
-      {
-        Screen screen = window.screen;
-        _canvas.width = screen.width;
-        _canvas.height = screen.height;
-      }
-      else
-      {
-        _canvas.width = _windowedWidth;
-        _canvas.height = _windowedHeight;
-      }
-
-      _resetViewport();
-
-      // Notify that the viewport has changed
-    });
-
-    _resetViewport();
-  }
-
-  GraphicsDevice get graphicsDevice() => _graphicsDevice;
-  int get width() => _canvas.width;
-  int get height() => _canvas.height;
-
-  void _resetViewport()
-  {
-    Viewport viewport = new Viewport(0, 0, _canvas.width, _canvas.height);
-    _graphicsDevice.viewport = viewport;
-  }
 }
 
 void loadEditorContents(String url)
@@ -234,22 +211,27 @@ void setupEditor()
   loadEditorContents(select.value);
 }
 
-void main() {
+void main()
+{
   setupEditor();
 
   gameWindow = new GameWindow('#game', 800, 600);
   __device = gameWindow.graphicsDevice;
 
   manager = new ContentManager(__device);
-  __texture = manager.loadTexture('textures/test.jpg');
+  __texture = manager.loadTexture('textures/dart_tex.png');
 
   __effect = manager.loadEffect(effectFilename);
   PositionTextureBuffer.createDeclaration();
   PositionNormalTextureBuffer.createDeclaration();
 
-  PlaneVisual plane = new PlaneVisual(__device, 0.5, 0.5, 64, 64);
-  __vertexBuffer = plane._vertexBuffer;
-  __indexBuffer = plane._indexBuffer;
+  BoxVisual box = new BoxVisual(__device, 0.5, 0.5, 0.5);
+  //PlaneVisual plane = new PlaneVisual(__device, 0.5, 0.5, 128, 128);
+  __vertexBuffer = box._vertexBuffer;
+  __indexBuffer = box._indexBuffer;
+
+  __camera = new Camera();
+  __camera.setPerspective(0.785398163, 800 / 600, 0.01, 100.0);
 
   update(0);
 }
@@ -261,6 +243,22 @@ bool update(int time) {
   if (__effect.techniques.containsKey(techniqueName))
   {
     // Set the uniform should really only be done once
+    mat4x4 rot1 = new mat4x4.rotationY(time * 0.0005);
+    rot1.col3.w = 1.0;
+    mat4x4 rot2 = new mat4x4.rotationX(time * 0.0005);
+    rot2.col3.w = 1.0;
+    mat4x4 m = rot1 * rot2;
+    m.col3 = new vec4(0.0, 0.0, 2.5, 1.0);
+    vec3 eye = new vec3(0.0, 0.0, 0.1);
+    vec3 lookAt = new vec3(0.0, 0.0, 0.0);
+    vec3 upVec = new vec3(0.0, 1.0, 0.0);
+    mat4x4 v = makeLookAt(eye, lookAt, upVec);
+    mat4x4 mv = v * m;
+    __effect.parameters['uMVMatrix'].setMatrix4x4(mv);
+    mat4x4 p = __camera.projectionMatrix;
+    mat4x4 mvp =  p * mv;
+    __effect.parameters['uMVPMatrix'].setMatrix4x4(mvp);
+
     __effect.parameters['uSampler'].setInt(0);
 
     EffectPass pass = __effect.techniques[techniqueName].passes[0];

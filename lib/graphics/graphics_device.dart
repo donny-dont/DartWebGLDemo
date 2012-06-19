@@ -62,7 +62,8 @@ class GraphicsDevice
   WebGLRenderingContext _gl;
   vec4 _clearColor;
   Viewport _viewport;
-  Float32Array _matrixArray;
+  Float32Array _matrix3x3Array;
+  Float32Array _matrix4x4Array;
 
   //---------------------------------------------------------------------
   // Constructor
@@ -70,9 +71,14 @@ class GraphicsDevice
 
   GraphicsDevice(WebGLRenderingContext gl)
     : _gl = gl
-    , _matrixArray = new Float32Array(16)
+    , _matrix3x3Array = new Float32Array(9)
+    , _matrix4x4Array = new Float32Array(16)
   {
     clearColor = new vec4(0.0, 0.0, 0.0, 1.0);
+
+    _gl.enable(WebGLRenderingContext.DEPTH_TEST);
+    _gl.frontFace(WebGLRenderingContext.CCW);
+    _gl.cullFace(WebGLRenderingContext.BACK);
   }
 
   //---------------------------------------------------------------------
@@ -134,13 +140,25 @@ class GraphicsDevice
     _gl.uniform1i(location, value);
   }
 
+  void _bindUniform1f(WebGLUniformLocation location, double value)
+  {
+    _gl.uniform1f(location, value);
+  }
+
+  void _bindUniformMatrix3x3(WebGLUniformLocation location, mat3x3 value)
+  {
+    value.copyIntoArray(_matrix3x3Array);
+
+    _gl.uniformMatrix3fv(location, false, _matrix3x3Array);
+  }
+
   void _bindUniformMatrix4x4(WebGLUniformLocation location, mat4x4 value)
   {
     // mat4x4 should probably be backed by an array
     // just copy it over to our array
-    value.copyIntoArray(_matrixArray);
+    value.copyIntoArray(_matrix4x4Array);
 
-    _gl.uniformMatrix4fv(location, false, _matrixArray);
+    _gl.uniformMatrix4fv(location, false, _matrix4x4Array);
   }
 
   //---------------------------------------------------------------------
@@ -173,6 +191,11 @@ class GraphicsDevice
 
     bool vertexCompiled = _gl.getShaderParameter(vertexShader, WebGLRenderingContext.COMPILE_STATUS);
 
+    if (!vertexCompiled)
+    {
+      print(_gl.getShaderInfoLog(vertexShader));
+    }
+
     // Create the fragment shader
     WebGLShader fragmentShader = _gl.createShader(WebGLRenderingContext.FRAGMENT_SHADER);
 
@@ -180,6 +203,11 @@ class GraphicsDevice
     _gl.compileShader(fragmentShader);
 
     bool fragmentCompiled = _gl.getShaderParameter(fragmentShader, WebGLRenderingContext.COMPILE_STATUS);
+
+    if (!fragmentCompiled)
+    {
+      print(_gl.getShaderInfoLog(fragmentShader));
+    }
 
     // Attach the shaders
     WebGLProgram program = pass._program;

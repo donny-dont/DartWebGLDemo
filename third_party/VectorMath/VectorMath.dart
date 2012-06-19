@@ -23,6 +23,7 @@
 */
 #library("VectorMath");
 #import('dart:core');
+#import('dart:html');
 #source("src/ScalarMath.dart");
 #source("gen/vec2_gen.dart");
 #source("gen/vec3_gen.dart");
