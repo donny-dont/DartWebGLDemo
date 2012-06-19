@@ -47,7 +47,7 @@ class IndexBuffer extends GraphicsResource
     return _array[index];
   }
 
-  int operator[]= (int index, int value)
+  void operator[]= (int index, int value)
   {
     _array[index] = value;
 
